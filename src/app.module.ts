@@ -3,13 +3,19 @@ import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { ConfigModule } from '@nestjs/config';
-import  { DatabaseModule } from './database/database.module.js'
+import { DatabaseModule } from './database/database.module.js';
 import { PartsModule } from './parts/parts.module.js';
+import { CatalogModule } from './catalog/catalog.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), DatabaseModule, PartsModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
+    PartsModule,
+    CatalogModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
