@@ -14,6 +14,21 @@ query( text: string, params ?: unknown[] ) {
    return this.pool.query(text, params);
 }
 
+async transaction<T>(fn: (client: pg.PoolClient) => Promise<T>): Promise<T> {
+   const client = await this.pool.connect();
+   try {
+     await client.query('BEGIN');
+     const result = await fn(client);
+     await client.query('COMMIT');
+     return result;
+   } catch (err) {
+     await client.query('ROLLBACK');
+     throw err;
+   } finally {
+     client.release();
+   }
+ }
+
 async onModuleDestroy() {
    await this.pool.end()
 }
