@@ -11,6 +11,7 @@ import { CatalogModule } from './catalog/catalog.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { OrdersModule } from './orders/orders.module.js';
 import { PartsModule } from './parts/parts.module.js';
+import { MemoryCacheModule } from './cache/memory-cache.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -23,6 +24,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     OrdersModule,
     AuthModule,
     AdminModule,
+    MemoryCacheModule,
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
   ],
   controllers: [AppController],
