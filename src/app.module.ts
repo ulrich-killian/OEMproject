@@ -7,6 +7,9 @@ import { DatabaseModule } from './database/database.module.js';
 import { PartsModule } from './parts/parts.module.js';
 import { CatalogModule } from './catalog/catalog.module.js';
 import { OrdersModule } from './orders/orders.module.js';
+import { AdminGuard } from './auth/admin.guard.js';
+import { AuthController } from './auth/auth.controller.js'
+import { AuthService } from './auth/auth.service.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -16,9 +19,10 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     DatabaseModule,
     PartsModule,
     CatalogModule,
-    OrdersModule
+    OrdersModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, AuthController],
+  providers: [AppService, AuthService, AdminGuard],
+  exports: [AuthService, AdminGuard],
 })
 export class AppModule {}

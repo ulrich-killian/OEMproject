@@ -9,6 +9,7 @@
   "scripts": {
     "build": "nest build",
     "db:migrate": "node --env-file=.env scripts/migrate.mjs",
+    "admin:create": "node --env-file=.env scripts/create-admin.mjs",
     "db:seed": "node --env-file=.env scripts/seed.mjs",
     "deploy": "nest deploy",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
