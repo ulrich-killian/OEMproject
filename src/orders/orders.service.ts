@@ -1,7 +1,8 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException  } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
 import { DatabaseService } from '../database/database.service.js';
 import { CreateOrderDto } from './create-order.dto.js';
+
 
 @Injectable()
 export class OrdersService {
@@ -96,5 +97,26 @@ export class OrdersService {
         status: 'awaiting_payment',
       };
     });
+  }
+  async track(token: string) {
+    const order = await this.db.query(
+      `SELECT o.id, o.status, o.currency, o.subtotal_cents, o.shipping_cents,
+              o.total_cents, o.created_at, i.invoice_number
+       FROM orders o
+       JOIN invoices i ON i.order_id = o.id
+       WHERE o.public_token = $1`,
+      [token],
+    );
+    if (order.rows.length === 0) {
+      throw new NotFoundException('Order not found');
+    }
+  
+    const { id, ...summary } = order.rows[0];
+    const items = await this.db.query(
+      `SELECT oem_number, name, qty, unit_price_cents
+       FROM order_items WHERE order_id = $1 ORDER BY id`,
+      [id],
+    );
+    return { ...summary, items: items.rows };
   }
 }

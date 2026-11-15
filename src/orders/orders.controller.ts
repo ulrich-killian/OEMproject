@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Get, Param } from '@nestjs/common';
 import { CreateOrderDto } from './create-order.dto.js';
 import { OrdersService } from './orders.service.js';
 
@@ -10,4 +10,8 @@ export class OrdersController {
   create(@Body() dto: CreateOrderDto) {
     return this.orders.create(dto);
   }
+  @Get(':token')
+track(@Param('token') token: string) {
+  return this.orders.track(token);
+}
 }
