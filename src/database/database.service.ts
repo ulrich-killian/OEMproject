@@ -6,9 +6,12 @@ import pg from 'pg';
 export class DatabaseService implements OnModuleDestroy {
        private pool: pg.Pool;
        constructor(config: ConfigService) {
-         this.pool = new pg.Pool ({
-            connectionString: config.getOrThrow<string>('DATABASE_URL'),
-         })
+        this.pool = new pg.Pool({
+          connectionString: config.getOrThrow<string>('DATABASE_URL'),
+          max: 10,
+          statement_timeout: 5000,
+          idleTimeoutMillis: 30_000,
+        });
 }
 query( text: string, params ?: unknown[] ) {
    return this.pool.query(text, params);
