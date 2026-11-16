@@ -1,4 +1,6 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import {
+  BadRequestException, Controller, Get, NotFoundException, Param, ParseIntPipe, Query,
+} from '@nestjs/common';
 import { PartsService } from './parts.service.js';
 
 @Controller('parts')
@@ -13,4 +15,9 @@ export class PartsController {
     }
     return this.parts.search(q, id);
   }
+  @Get(':id')
+detail(@Param('id', ParseIntPipe) id: number) {
+  if (id < 1 || id > 2_147_483_647) throw new NotFoundException('Part not found');
+  return this.parts.detail(id);
+}
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { MemoryCacheService } from '../cache/memory-cache.service.js';
 import { DatabaseService } from '../database/database.service.js';
 
@@ -37,6 +37,27 @@ export class PartsService {
 
       const result = await this.db.query(sql, params);
       return result.rows;
+    });
+  }
+  detail(id: number) {
+    return this.cache.remember(`parts:detail:${id}`, 30_000, async () => {
+      const part = await this.db.query(
+        `SELECT id, oem_number, name, price_cents, stock, weight_kg
+         FROM parts WHERE id = $1`,
+        [id],
+      );
+      if (part.rows.length === 0) throw new NotFoundException('Part not found');
+  
+      const fits = await this.db.query(
+        `SELECT m.id, b.name AS brand, m.name, m.year_from, m.year_to
+         FROM part_compatibility c
+         JOIN models m ON m.id = c.model_id
+         JOIN brands b ON b.id = m.brand_id
+         WHERE c.part_id = $1
+         ORDER BY b.name, m.name, m.year_from`,
+        [id],
+      );
+      return { ...part.rows[0], fits: fits.rows };
     });
   }
 }
