@@ -9,9 +9,9 @@ export class PartsService {
     private readonly cache: MemoryCacheService,
   ) {}
 
-  search(q?: string, modelId?: number) {
+  search(q?: string, modelId?: number, ids?: number[]) {
     const normalized = (q ?? '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 60);
-    const key = `parts:${q ? `q=${normalized}` : 'all'}:${modelId ?? 'any'}`;
+    const key = `parts:${q ? `q=${normalized}` : 'all'}:${modelId ?? 'any'}:${ids ? ids.join(',') : 'any'}`;
 
     return this.cache.remember(key, 30_000, async () => {
       const where: string[] = [];
@@ -26,6 +26,11 @@ export class PartsService {
         where.push(
           `id IN (SELECT part_id FROM part_compatibility WHERE model_id = $${params.length})`,
         );
+      }
+
+      if (ids !== undefined) {
+        params.push(ids);
+        where.push(`id = ANY($${params.length}::int[])`);
       }
 
       const sql = `
