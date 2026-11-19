@@ -6,3 +6,5 @@ http://localhost:3000/parts?model_id=abc	A 400 error: “model_id must be a whol
 http://localhost:3000/parts	All 3 parts
 http://localhost:3000/brands 
 http://localhost:3000/models?brand_id=1
+
+
