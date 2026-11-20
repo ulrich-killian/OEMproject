@@ -73,6 +73,8 @@ export class OrdersService {
         [orderId, invoiceNumber],
       );
 
+      const site = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/+$/, '');
+
       const lines = found.rows.map(
         (p) => `${wanted.get(p.id)} x ${p.oem_number} ${p.name} - $${(p.price_cents / 100).toFixed(2)} each`,
       );
@@ -83,7 +85,7 @@ export class OrdersService {
         ...lines,
         '',
         `Total: $${(subtotal / 100).toFixed(2)} USD`,
-        `Order tracking code: ${token}`,
+        site ? `Track your order: ${site}/orders/${token}` : `Order tracking code: ${token}`,,
       ].join('\n');
       await client.query(
         'INSERT INTO emails (order_id, to_email, subject, body) VALUES ($1, $2, $3, $4)',
