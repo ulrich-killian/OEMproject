@@ -79,4 +79,49 @@ export class AdminPartsService {
     this.cache.clearPrefix('parts:');
     return result;
   }
+
+  async list(q: string | undefined, limit: number, offset: number) {
+    const text = (q ?? '').trim().toLowerCase().slice(0, 60);
+    const params: unknown[] = [];
+    const add = (value: unknown) => {
+      params.push(value);
+      return `$${params.length}`;
+    };
+
+    let where = '';
+    if (text) {
+      const like = add(`%${text.replace(/[\\%_]/g, '\\$&')}%`);
+      const conditions = [`name ILIKE ${like}`, `oem_number ILIKE ${like}`];
+      const norm = text.replace(/[^a-z0-9]/g, '');
+      if (norm) conditions.push(`search_number LIKE ${add(norm + '%')}`);
+      where = `WHERE ${conditions.join(' OR ')}`;
+    }
+
+    const lim = add(limit);
+    const off = add(offset);
+    const result = await this.db.query(
+      `SELECT ${COLUMNS} FROM parts ${where} ORDER BY name, id LIMIT ${lim} OFFSET ${off}`,
+      params,
+    );
+    return result.rows;
+  }
+
+  async get(id: number) {
+    const part = await this.db.query(`SELECT ${COLUMNS} FROM parts WHERE id = $1`, [id]);
+    if (part.rows.length === 0) throw new NotFoundException('Part not found');
+    const fits = await this.db.query(
+      'SELECT model_id FROM part_compatibility WHERE part_id = $1 ORDER BY model_id',
+      [id],
+    );
+    return { ...part.rows[0], model_ids: fits.rows.map((r) => r.model_id) };
+  }
+
+  async models() {
+    const result = await this.db.query(
+      `SELECT m.id, b.name AS brand, m.name, m.year_from, m.year_to
+       FROM models m JOIN brands b ON b.id = m.brand_id
+       ORDER BY b.name, m.name, m.year_from`,
+    );
+    return result.rows;
+  }
 }

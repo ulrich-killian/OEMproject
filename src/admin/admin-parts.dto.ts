@@ -1,7 +1,8 @@
 import {
    ArrayMaxSize, IsArray, IsInt, IsNumber, IsOptional, IsString, Length, Max, Min,
  } from 'class-validator';
- 
+ import { Type } from 'class-transformer';
+
  export class CreatePartDto {
    @IsString() @Length(1, 60) oem_number!: string;
    @IsString() @Length(1, 200) name!: string;
@@ -21,3 +22,9 @@ import {
    @IsArray() @ArrayMaxSize(500) @IsInt({ each: true }) @Min(1, { each: true })
    model_ids!: number[];
  }
+
+ export class ListPartsQuery {
+  @IsOptional() @IsString() @Length(1, 60) q?: string;
+  @IsOptional() @Type(() => Number) @IsInt() @Min(1) @Max(100) limit?: number;
+  @IsOptional() @Type(() => Number) @IsInt() @Min(0) offset?: number;
+}

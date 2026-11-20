@@ -7,10 +7,11 @@ import { AdminPartsController } from './admin-parts.controller.js';
 import { AdminPartsService } from './admin-parts.service.js';
 import { AdminEmailsController } from './admin-emails.controller.js';
 import { AdminEmailsService } from './admin-emails.service.js';
+import { AdminModelsController } from './admin-models.controller.js';
 
 @Module({
   imports: [DatabaseModule, AuthModule],
-  controllers: [AdminPartsController, AdminOrdersController, AdminEmailsController],
+  controllers: [AdminPartsController, AdminOrdersController, AdminEmailsController, AdminModelsController],
   providers: [AdminPartsService, AdminOrdersService, AdminEmailsService],
 })
 export class AdminModule {}
